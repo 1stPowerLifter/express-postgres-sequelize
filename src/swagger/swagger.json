@@ -1,0 +1,1356 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "REST API",
+    "description": "API documentation for Node.js/Express application"
+  },
+  "host": ["cool-app.fly.dev"],
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "Endpoints for user authentication"
+    },
+    {
+      "name": "Users",
+      "description": "Endpoints for managing users"
+    },
+    {
+      "name": "Roles",
+      "description": "Endpoints for managing user roles"
+    },
+    {
+      "name": "Posts",
+      "description": "Endpoints for managing blog posts"
+    },
+    {
+      "name": "Categories",
+      "description": "Endpoints for managing blog post categories"
+    },
+    {
+      "name": "Tags",
+      "description": "Endpoints for managing blog post tags"
+    }
+  ],
+  "schemes": ["https"],
+  "securityDefinitions": {
+    "bearerAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "scheme": "bearer",
+      "in": "header"
+    }
+  },
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "paths": {
+    "/api/auth/register": {
+      "post": {
+        "tags": ["Authentication"],
+        "description": "Registers a user and returns the created user object",
+        "parameters": [
+          {
+            "name": "Credentials",
+            "in": "body",
+            "description": "User credentials",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Register"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "201": {
+            "description": "Successful register",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "404": {
+            "description": "This role not found"
+          },
+          "409": {
+            "description": "Already registered email or unverified phone number"
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "description": "Logs in a user and returns a tokens",
+        "parameters": [
+          {
+            "name": "Credentials",
+            "in": "body",
+            "description": "User credentials",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Login"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful login",
+            "schema": {
+              "$ref": "#/definitions/Tockens"
+            }
+          },
+          "401": {
+            "description": "Invalid email or password"
+          }
+        }
+      }
+    },
+    "/api/auth/refresh": {
+      "post": {
+        "tags": ["Authentication"],
+        "description": "Updates user tokens",
+        "parameters": [
+          {
+            "name": "User tocken",
+            "in": "body",
+            "description": "User tocken",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RefreshTocken"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful refresh",
+            "schema": {
+              "$ref": "#/definitions/Tockens"
+            }
+          },
+          "401": {
+            "description": "Not authorized"
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "get": {
+        "tags": ["Authentication"],
+        "description": "User exit from the system",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful logout"
+          }
+        }
+      }
+    },
+    "/api/auth/login/google": {
+      "get": {
+        "tags": ["Authentication"],
+        "description": "Redirect to google login",
+        "parameters": [],
+        "responses": {
+          "302": {
+            "description": "Found",
+            "headers": {
+              "Location": {
+                "type": "string",
+                "example": "/new-path"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/oauth/google": {
+      "get": {
+        "tags": ["Authentication"],
+        "description": "Google login",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful login",
+            "schema": {
+              "$ref": "#/definitions/Tockens"
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login/facebook": {
+      "get": {
+        "tags": ["Authentication"],
+        "description": "Redirect to facebook login",
+        "parameters": [],
+        "responses": {
+          "302": {
+            "description": "Found",
+            "headers": {
+              "Location": {
+                "type": "string",
+                "example": "/new-path"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/oauth/facebook": {
+      "get": {
+        "tags": ["Authentication"],
+        "description": "Facebook login",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful login",
+            "schema": {
+              "$ref": "#/definitions/Tockens"
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/verification-number": {
+      "post": {
+        "tags": ["Authentication"],
+        "description": "Verification number",
+        "parameters": [
+          {
+            "name": "User number",
+            "in": "body",
+            "description": "User number",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PhoneNumber"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/api/auth/otp": {
+      "post": {
+        "tags": ["Authentication"],
+        "description": "Verify OTP",
+        "parameters": [
+          {
+            "name": "OTP and number",
+            "in": "body",
+            "description": "OTP and number",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VerifyOTP"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "True verification"
+          }
+        }
+      }
+    },
+    "/api/users/": {
+      "get": {
+        "tags": ["Users"],
+        "description": "Get all users",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Users"],
+        "description": "Add user and returns the created user object",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "Credentials",
+            "in": "body",
+            "description": "User credentials",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Register"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful register",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "404": {
+            "description": "This role not found"
+          },
+          "409": {
+            "description": "User with this email already exists"
+          }
+        }
+      }
+    },
+    "/api/users/setpassword": {
+      "patch": {
+        "tags": ["Users"],
+        "description": "update user pasword",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "User",
+            "in": "body",
+            "description": "User",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Paswords"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User with this id update"
+          },
+          "400": {
+            "description": "User with this id not found"
+          },
+          "404": {
+            "description": "The passwords are not the same or the old password is incorrect or the new password does not differ from the old password"
+          }
+        }
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "tags": ["Users"],
+        "description": "Get user by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "User ID."
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Users"],
+        "description": "update user by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "User ID."
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "User",
+            "in": "body",
+            "description": "User",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateUser"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User with this id update"
+          },
+          "404": {
+            "description": "User with this id not found or this role not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Users"],
+        "description": "Remove user by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "User ID."
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User with this id has been deleted"
+          },
+          "404": {
+            "description": "User with this id not found"
+          }
+        }
+      }
+    },
+    "/api/roles/": {
+      "get": {
+        "tags": ["Roles"],
+        "description": "Get all roles",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Roles"],
+        "description": "Add role",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "Role",
+            "in": "body",
+            "description": "Role",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddRole"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Role",
+            "schema": {
+              "$ref": "#/definitions/Role"
+            }
+          },
+          "404": {
+            "description": "This role already exists"
+          }
+        }
+      }
+    },
+    "/api/roles/{id}": {
+      "get": {
+        "tags": ["Roles"],
+        "description": "Get role by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "Role id."
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Roles"],
+        "description": "Update role by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "Role id."
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "Role",
+            "in": "body",
+            "description": "Role",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddRole"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Role with this id update"
+          },
+          "404": {
+            "description": "Role with this id not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Roles"],
+        "description": "Remove role by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "Role id."
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Role with this id has been deleted"
+          },
+          "404": {
+            "description": "Role with this id not found"
+          }
+        }
+      }
+    },
+    "/api/posts/": {
+      "get": {
+        "tags": ["Posts"],
+        "description": "Get all posts",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Posts"],
+        "description": "Add post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "Post",
+            "in": "body",
+            "description": "Post",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddPost"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        }
+      }
+    },
+    "/api/posts/my": {
+      "get": {
+        "tags": ["Posts"],
+        "description": "Get all user posts",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/posts/category/{category}": {
+      "get": {
+        "tags": ["Posts"],
+        "description": "Get all post by category",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Category name."
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/posts/my/{category}": {
+      "get": {
+        "tags": ["Posts"],
+        "description": "Get all posts by category and user id",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Category name."
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/posts/{id}": {
+      "get": {
+        "tags": ["Posts"],
+        "description": "Get post by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "Post id."
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Posts"],
+        "description": "Update post by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "Post id."
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "Post",
+            "in": "body",
+            "description": "Post",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddPost"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post with this id update"
+          },
+          "400": {
+            "description": "You don't have a post with this id"
+          },
+          "404": {
+            "description": "This category not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Posts"],
+        "description": "Remove post by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "Post id."
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post with this id has been deleted"
+          },
+          "400": {
+            "description": "You don't have a post with this id"
+          }
+        }
+      }
+    },
+    "/api/categories/": {
+      "get": {
+        "tags": ["Categories"],
+        "description": "Get all categories",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Categories"],
+        "description": "Add category",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "Category",
+            "in": "body",
+            "description": "Category",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddCategory"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/categories/{id}": {
+      "get": {
+        "tags": ["Categories"],
+        "description": "Get category by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "Category ID."
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Categories"],
+        "description": "update category by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "Category ID."
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "Category",
+            "in": "body",
+            "description": "Category",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddCategory"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Category with this id update"
+          },
+          "404": {
+            "description": "Category with this name already exists or category with this id not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Categories"],
+        "description": "Remove category by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "Category ID."
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Category with this id has been deleted"
+          },
+          "404": {
+            "description": "Category with this id not found"
+          }
+        }
+      }
+    },
+    "/api/tags/": {
+      "get": {
+        "tags": ["Tags"],
+        "description": "Get all tags",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Tags"],
+        "description": "Add tag",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "Tag",
+            "in": "body",
+            "description": "Tag",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddTag"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        }
+      }
+    },
+    "/api/tags/{id}": {
+      "get": {
+        "tags": ["Tags"],
+        "description": "Get tag by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "Tag ID."
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Tags"],
+        "description": "Remove tag by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "Tag ID."
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tag with this id has been deleted"
+          },
+          "404": {
+            "description": "Tag with this id not found"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Login": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "example": "johndoe@example.com"
+        },
+        "password": {
+          "type": "string",
+          "example": "password123"
+        }
+      }
+    },
+    "Register": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "example": "John"
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Doe"
+        },
+        "email": {
+          "type": "string",
+          "example": "johndoe@example.com"
+        },
+        "phoneNumber": {
+          "type": "string",
+          "example": "+380987654321"
+        },
+        "password": {
+          "type": "string",
+          "example": "password123"
+        },
+        "role": {
+          "type": "string",
+          "example": "USER"
+        }
+      }
+    },
+    "Tockens": {
+      "type": "object",
+      "properties": {
+        "accessToken": {
+          "type": "string",
+          "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+        },
+        "refreshToken": {
+          "type": "string",
+          "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+        }
+      }
+    },
+    "RefreshTocken": {
+      "type": "object",
+      "properties": {
+        "refreshToken": {
+          "type": "string",
+          "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+        }
+      }
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number",
+          "example": 1
+        },
+        "firstName": {
+          "type": "string",
+          "example": "John"
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Doe"
+        },
+        "email": {
+          "type": "string",
+          "example": "johndoe@example.com"
+        },
+        "phoneNumber": {
+          "type": "string",
+          "example": "+380987654321"
+        },
+        "password": {
+          "type": "string",
+          "example": "$2a$04$Jtz.O1xEndPwvfXYk9V4JOvSYL3xYlVoex6nxI7ZBHNM2BchuwYga"
+        },
+        "roleId": {
+          "type": "number",
+          "example": 1
+        },
+        "token": {
+          "type": "string",
+          "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+        },
+        "origin": {
+          "type": "string",
+          "example": "homepage"
+        },
+        "createdAt": {
+          "type": "string",
+          "example": "2023-03-13 17:45:03.280 +0200"
+        },
+        "updatedAt": {
+          "type": "string",
+          "example": "2023-03-13 17:45:03.280 +0200"
+        }
+      }
+    },
+    "ArrOfUsers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/User"
+      }
+    },
+    "UpdateUser": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "example": "John"
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Doe"
+        },
+        "role": {
+          "type": "string",
+          "example": "USER"
+        }
+      }
+    },
+    "PhoneNumber": {
+      "type": "object",
+      "properties": {
+        "phoneNumber": {
+          "type": "string",
+          "example": "+380987654321"
+        }
+      }
+    },
+    "VerifyOTP": {
+      "type": "object",
+      "properties": {
+        "phoneNumber": {
+          "type": "string",
+          "example": "+380987654321"
+        },
+        "OTP": {
+          "type": "string",
+          "example": "123456"
+        }
+      }
+    },
+    "Passwords": {
+      "type": "object",
+      "properties": {
+        "newPassword": {
+          "type": "string",
+          "example": "password123new"
+        },
+        "repeatNewPassword": {
+          "type": "string",
+          "example": "password123new"
+        },
+        "oldPassword": {
+          "type": "string",
+          "example": "password123"
+        }
+      }
+    },
+    "Category": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number",
+          "example": 1
+        },
+        "name": {
+          "type": "string",
+          "example": "Category"
+        },
+        "description": {
+          "type": "string",
+          "example": "Example of category"
+        },
+        "createdAt": {
+          "type": "string",
+          "example": "2023-03-13 17:45:03.280 +0200"
+        },
+        "updatedAt": {
+          "type": "string",
+          "example": "2023-03-13 17:45:03.280 +0200"
+        }
+      }
+    },
+    "ArrOfCategories": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Category"
+      }
+    },
+    "AddCategory": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "Category"
+        },
+        "description": {
+          "type": "string",
+          "example": "Example of category"
+        }
+      }
+    },
+    "Post": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number",
+          "example": 1
+        },
+        "title": {
+          "type": "string",
+          "example": "Title"
+        },
+        "content": {
+          "type": "string",
+          "example": "Content"
+        },
+        "userId": {
+          "type": "number",
+          "example": 1
+        },
+        "categoryId": {
+          "type": "number",
+          "example": 1
+        },
+        "createdAt": {
+          "type": "string",
+          "example": "2023-03-13 17:45:03.280 +0200"
+        },
+        "updatedAt": {
+          "type": "string",
+          "example": "2023-03-13 17:45:03.280 +0200"
+        }
+      }
+    },
+    "ArrOfPosts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Post"
+      }
+    },
+    "AddPost": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "example": "Title"
+        },
+        "content": {
+          "type": "string",
+          "example": "Content"
+        },
+        "category": {
+          "type": "string",
+          "example": "Category"
+        },
+        "tags": {
+          "type": "array",
+          "example": ["tag1", "tag2"],
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "Role": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number",
+          "example": 1
+        },
+        "role": {
+          "type": "string",
+          "example": "User"
+        },
+        "createdAt": {
+          "type": "string",
+          "example": "2023-03-13 17:45:03.280 +0200"
+        },
+        "updatedAt": {
+          "type": "string",
+          "example": "2023-03-13 17:45:03.280 +0200"
+        }
+      }
+    },
+    "ArrOfRoles": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Role"
+      }
+    },
+    "AddRole": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "type": "string",
+          "example": "User"
+        }
+      }
+    },
+    "Tag": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number",
+          "example": 1
+        },
+        "name": {
+          "type": "string",
+          "example": "Tag"
+        }
+      }
+    },
+    "ArrOfTags": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Tag"
+      }
+    },
+    "AddTag": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "Tag"
+        }
+      }
+    }
+  }
+}
